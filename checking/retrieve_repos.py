@@ -2,13 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """Program to retrieve practices
-Uses a CSV file with the list of students, with this format:
-"Usuario GitLab","Usuario Laboratorio",Usuario,"Nombre de usuario","Dirección de correo"
-* Usuario GitLab is the name used for GitLab repos
-* Usuario is the URJC user name
+Uses a CSV file with the list of students retrieved from Aulavirtual filtering by Student role:
+"Nombre","Apellido(s)","Dirección de correo"
 
-Example ofhow to run the script:
+Example of how to run the script:
 retrieve_repos.py --practice :all: --students ist-saro-2022.csv --cloning_dir ../../retrieved-2022
+
+It will return always the folloing files:
+- "not_founds.txt": file with those students with problems finding their fork
+- "<students>_enriched.csv": csv enriched with the lab username and gitlab username (if found) of the students
 """
 
 import argparse
@@ -17,12 +19,15 @@ import json
 import os
 import subprocess
 import urllib.request
+import re
 
 from shutil import copyfile
 from distutils.dir_util import copy_tree
+from unicodedata import normalize
 
 from git.repo.base import Repo
 from git.exc import GitCommandError
+
 
 def add_api (practices):
     for number, practice in practices.items():
@@ -30,60 +35,25 @@ def add_api (practices):
 
 practices = {
     "calculadora": {
-        'repo': 'cursosweb/x-serv-13.6-calculadora',
-        'repo_api': 'cursosweb%2Fx-serv-13.6-calculadora'
+        'repo': 'cursosweb/2022-2023/calculadora',
+        'repo_api': 'cursosweb%2F2022-2023%2Fcalculadora'
     },
     "redir": {
-        'repo': 'cursosweb/x-serv-15.4-aplicacion-redirectora',
-        'repo_api': 'cursosweb%2Fx-serv-15.4-aplicacion-redirectora',
+        'repo': 'cursosweb/2022-2023/aplicacion-redirectora',
+        'repo_api': 'cursosweb%2F2022-2023%2Faplicacion-redirectora',
     },
-    "contentapp": {
-        'repo': 'cursosweb/xserv-contentapp',
-        'repo_api': 'cursosweb%2Fxserv-contentapp'
+    "descargaweb": {
+        'repo': 'cursosweb/2022-2023/descarga-documentos-web',
+        'repo_api': 'cursosweb%2F2022-2023%2Fdescarga-documentos-web',
     },
-    "contentpostapp": {
-        'repo': 'cursosweb/X-Serv-17.4-ContentPostApp',
-        'repo_api': 'cursosweb%2FX-Serv-17.4-ContentPostApp'
-    },
-    "django_cmsput": {
-        'repo': 'cursosweb/x-serv-15.6-django-cms-put',
-        'repo_api': 'cursosweb%2Fx-serv-15.6-django-cms-put'
-    },
-    "django_cmsusersput": {
-        'repo': 'cursosweb/x-serv-15.8-cmsusersput',
-        'repo_api': 'cursosweb%2Fx-serv-15.8-cmsusersput'
-    },
-    "django_cmspost": {
-        'repo': 'cursosweb/practicas/server/django-cms-post',
-        'repo_api': 'cursosweb%2Fpracticas%2Fserver%2Fdjango-cms-post'
-    },
-    "youtube": {
-        'repo': 'cursosweb/practicas/server/youtube-descarga',
-        'repo_api': 'cursosweb%2Fpracticas%2Fserver%2Fyoutube-descarga'
-    },
-    "django_youtube": {
-        'repo': 'cursosweb/practicas/server/django-youtube',
-        'repo_api': 'cursosweb%2Fpracticas%2Fserver%2Fdjango-youtube'
-    },
-    "django_cmscss2": {
-        'repo': 'cursosweb/practicas/server/django-cms-css-2',
-        'repo_api': 'cursosweb%2Fpracticas%2Fserver%2Fdjango-cms-css-2'
-    },
-    "1": {
-        'repo': 'cursosweb/mini-1-acortadora',
-        'repo_api': 'cursosweb%2Fmini-1-acortadora'
-    },
-    "2": {
-        'repo': 'cursosweb/x-serv-18.2-practica2',
-        'repo_api': 'cursosweb%2Fx-serv-18.2-practica2'
-    },
-    "final": {
-        'repo': 'cursosweb/practicas/server/final-mispalabras',
-        'repo_api': 'cursosweb%2Fpracticas%2Fserver%2Ffinal-mispalabras'
+    "descargawebmodulos": {
+        'repo': 'cursosweb/2022-2023/descarga-documentos-web-modulos',
+        'repo_api': 'cursosweb%2F2022-2023%2Fddescarga-documentos-web-modulos',
     }
 }
 
 add_api(practices)
+
 
 def get_token() -> str:
     try:
@@ -92,6 +62,7 @@ def get_token() -> str:
             return token
     except FileNotFoundError:
         return ''
+
 
 def get_forks(repo: str, token: str = ''):
     req_headers = {}
@@ -112,6 +83,7 @@ def get_forks(repo: str, token: str = ''):
             forks = forks + json.loads(contents_str)
     return forks
 
+
 def clone(url, dir, token=''):
 #    auth_url = url.replace('https://', f"https://Api Read Access:{token}@", 1)
     auth_url = url.replace('https://', f"https://jesus.gonzalez.barahona:{token}@", 1)
@@ -121,23 +93,72 @@ def clone(url, dir, token=''):
     except GitCommandError as err:
         print(f"Error: git error {err}")
 
+
 def read_csv(file):
     students = {}
     with open(file, 'r', newline='', encoding="utf-8") as cvsfile:
         rows = csv.DictReader(cvsfile)
         for row in rows:
-            usuariogitlab = row['Usuario GitLab']
-            
-            # Corner case: some students start their username with @, for some reason
-            if usuariogitlab[0] == "@":
-                usuariogitlab = usuariogitlab[1:]
+            # We have the infor about the name, surname and email, we get the email as uid
+            usuariocorreo = row['Dirección de correo'].split("@")[0]
 
-            students[usuariogitlab] = {
-                'user': row['Nombre de usuario'],
-                'name': row['Usuario']
+            students[usuariocorreo] = {
+                'usuario_correo_completo': row['Dirección de correo'],
+                'usuario_correo': usuariocorreo,
+                'apellidos': row['Apellido(s)'],
             }
-            # print(f"{row['Usuario GitLab']}: {row['Nombre de usuario']}, {row['Usuario']}")
+            
+            # Sometimes Nombre in the csv of aulavirtual is not well displayed
+            if '\ufeffNombre' in row:
+                students[usuariocorreo]['nombre'] = row['\ufeffNombre']
+                students[usuariocorreo]['nombre_apellidos'] = "{} {}".format(row['\ufeffNombre'], row['Apellido(s)']).lower()
+                students[usuariocorreo]['nombre_apellidos_formatted'] = remove_tildes(
+                    students[usuariocorreo]['nombre_apellidos'])
+            elif 'Nombre' in row:
+                students[usuariocorreo]['nombre'] = row['Nombre']
+                students[usuariocorreo]['nombre_apellidos'] = "{} {}".format(row['Nombre'], row['Apellido(s)']).lower()
+                students[usuariocorreo]['nombre_apellidos_formatted'] = remove_tildes(
+                    students[usuariocorreo]['nombre_apellidos'])
+                
+            
+            
+            # Sometimes the gitlab username is the lab username, so let's retrieve the laboratory usernames
+            if 'Usuario Lab' in row:
+                students[usuariocorreo]['usuario_lab'] = row["Usuario Lab"]
+            else:
+                usuariolab = get_lab_username(students[usuariocorreo])
+                students[usuariocorreo]['usuario_lab'] = usuariolab
+            
     return students
+
+
+def get_lab_username(student):
+    # Command finger in etsit labs, removing tildes, extra spaces and "ñ"
+    stdoutfinger = os.popen("finger {} | grep 'Name: '".format(student['nombre_apellidos_formatted'])).read().split("\n")
+    for entry in stdoutfinger:
+        alumno_name = entry.split("\t\t\tName: ")[-1].lower().replace(" ", "")
+        if alumno_name in student['nombre_apellidos_formatted'].replace(" ", ""):
+            # Return the lab username
+            return entry.split("\n")[0].split("\t\t\tName: ")[0].split("Login: ")[-1].strip()
+        
+    return ""
+
+
+def remove_tildes(name):
+    # -> NFD y eliminar diacríticos
+    name = re.sub(
+        r"([^n\u0300-\u036f]|n(?!\u0303(?![\u0300-\u036f])))[\u0300-\u036f]+", r"\1",
+        normalize("NFD", name), 0, re.I
+    )
+
+    # -> NFC
+    name = normalize('NFC', name)
+
+    # ñ -> n
+    name = name.replace("ñ", "n")
+
+    return name
+
 
 def run_tests(dir: str, solved_dir: str, silent: bool=False):
     """Run tests for this directory"""
@@ -165,6 +186,7 @@ def run_tests(dir: str, solved_dir: str, silent: bool=False):
         print(f"Running tests Error: {dir}")
         return False
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Evaluate practices.')
     parser.add_argument('--silent', action='store_true',
@@ -182,6 +204,7 @@ def parse_args():
     args = parser.parse_args()
     return(args)
 
+
 def retrieve_practice(practice_id, cloning_dir, token):
     practice = practices[practice_id]
     forks = get_forks(repo=practice['repo_api'], token=token)
@@ -197,22 +220,71 @@ def retrieve_practice(practice_id, cloning_dir, token):
             'name': fork['namespace']['name'],
             'path': fork['namespace']['path']
         }
-        if fork_data['path'] in students:
-            # We're only interested in repos in the list of students
-            print(f"Found: {fork_data['path']}")
-            repos_found += 1
-            if not args.no_clone:
-                dir = os.path.join(cloning_dir, practice_id, fork_data['path'])
-                try:
-                    clone(fork_data['url'], dir, token)
-                except GitCommandError:
-                    pass
+
+        for student_data in students.values():
+            # Check in order to match the gitlab username with the student lab/correo
+            if "foundingitlab" not in student_data:
+                student_data['foundingitlab'] = False
+                if 'usuario_gitlab' not in student_data:
+                    student_data['usuario_gitlab'] = ""
+            if student_data['usuario_correo'] == fork_data['path']:
+                student_data['foundingitlab'] = True
+                student_data['usuario_gitlab'] = fork_data['path']
+            elif student_data['usuario_lab'] == fork_data['path']:
+                student_data['foundingitlab'] = True
+                student_data['usuario_gitlab'] = fork_data['path']
+            else:
+                continue
+            
+            # If I found the match between gitlab username and student, clone the repo
+            if student_data['foundingitlab']:
+                # We're only interested in repos in the list of students
+                print(f"Found: {fork_data['path']}")
+                repos_found += 1
+                if not args.no_clone:
+                    dir = os.path.join(cloning_dir, args.students.split(".csv")[0], practice_id, fork_data['path'])
+                    try:
+                        clone(fork_data['url'], dir, token)
+                    except GitCommandError:
+                        pass
+
         # # Run tests in the cloned repo
         # print("About to run tests:", os.path.join(testing_dir, fork_data['path']))
         # run_tests(dir=os.path.join(testing_dir, fork_data['path']),
         #           solved_dir=practice['solved_dir'],
         #           silent=args.silent)
-    print(f"Total forks: {len(forks)}, repos found: {repos_found}")
+    print(f"Total forks: {len(forks)}, repos found: {repos_found}, students in the csv: {len(students)}")
+    return students
+
+
+def export_not_founds(students):
+    errorlog = "not_founds.txt"
+    with open(errorlog, "w") as f:
+        for student in students.values():
+            # Error, no ha sido posible clonar el repositorio
+            if not student["foundingitlab"]:
+                f.write(f"No se ha encontrado el repositorio del estudiante "
+                        f"{student['nombre']} {student['apellidos']}"
+                        f" con login de correo {student['usuario_correo']} y usuario de laboratorio "
+                        f"{student['usuario_lab']}\n")
+            # Usuario de lab no encontrado
+            if not student["usuario_lab"]:
+                f.write(f"No se ha encontrado el usuario de laboratorio del estudiante "
+                        f"{student['nombre']} {student['apellidos']}"
+                        f" con login de correo {student['usuario_correo']}\n")
+
+
+def export_csv_enriched(studentsfile, students):
+    with open(f'{studentsfile.split(".csv")[0]}_enriched.csv', 'w', newline='') as csvenriched:
+        csvwriter = csv.writer(csvenriched)
+        csvwriter.writerow(["Nombre", "Apellido(s)", "Dirección de correo", "Usuario Lab", "Usuario Gitlab"])
+        for student in students.values():
+            # Enriquecer con los datos obtenidos
+            csvwriter.writerow([student["nombre"],
+                                student["apellidos"],
+                                student["usuario_correo_completo"],
+                                student["usuario_lab"],
+                                student["usuario_gitlab"]])
 
 
 if __name__ == "__main__":
@@ -227,4 +299,6 @@ if __name__ == "__main__":
         practice_ids = [args.practice]
     for practice_id in practice_ids:
         print(f"Retrieving practice {practice_id}")
-        retrieve_practice(practice_id, cloning_dir, token)
+        students = retrieve_practice(practice_id, cloning_dir, token)
+        export_not_founds(students)
+        export_csv_enriched(args.students, students)
