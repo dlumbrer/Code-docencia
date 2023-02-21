@@ -6,17 +6,20 @@ Retrieve repositories from the ETSIT GitLab instance which are forked from a tem
 
 For each practice, there is a dictionary in `retrieve_repos.py`, `practices`, specifying the name of the template repository, and the name of the repository in the GitLab API.
 
-For each subject, there is a CSV file with the list of students, which is retrieved from the corresponding activity in Moodle, with the format:
+For each subject, there is a CSV file **exported from the Aulavirtual subject** with the role **Estudiante** filtered. 
 
 ```
-"Usuario GitLab","Usuario Laboratorio",Usuario,"Nombre de usuario","Dirección de correo"
+"Nombre","Apellido(s)","Dirección de correo"
 ```
 
-* Usuario GitLab is the name used for GitLab repos
-* Usuario is the URJC user name
-
-Cloned repositories, by default, go to directory results/id (being `id` the identified of  the practice in the `practices` repository).
+Cloned repositories, by default, go to directory retrieved/<students_file_name>/id (being `id` the identified of  the practice in the `practices` repository).
 
 To run the script, a file `token` with a valid ETSIT GitLub token should be in the directory from which the script is run.
 
-Note: The name of the repository in the GitLab API could be generated from the name of the repository, we should fix this in the future.
+**IMPORTANT**: If the lab username of the students are not available, this script should be executed in a **lab.etsit machine** since it executes the `finger` command for matching the URJC username to the ETSIT lab username. See __Returned files section__ for further information.
+
+### Returned files: 
+
+By default, the script will return two useful files:
+- `not_founds.txt`: file with those students with problems finding their fork
+- `<students_filename>_enriched.csv`: csv enriched with the lab username and gitlab username (if found) of the students. And this csv could be used in the next executions for retrieving the practises without being in a lab etsit machine.
