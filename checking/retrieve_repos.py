@@ -199,8 +199,8 @@ def parse_args():
                         help="don't clone repos, assume repos were already cloned")
     parser.add_argument('--students', required=True,
                         help="name of csv file with students, exported from Moodle")
-    parser.add_argument('--practice', default=2,
-                        help="practice number (:all: to retrieve all practices")
+    parser.add_argument('--practice', default=practices.keys()[-1],
+                        help="practice number (:all: to retrieve all practices, default: last practice")
     parser.add_argument('--cloning_dir', default='retrieved',
                         help="directory for cloning retrieved practices")
     parser.add_argument('--testing_dir', default='/tmp/p',
