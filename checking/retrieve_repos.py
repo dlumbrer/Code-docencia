@@ -287,8 +287,8 @@ def export_csv_enriched(studentsfile, students):
             csvwriter.writerow([student["nombre"],
                                 student["apellidos"],
                                 student["usuario_correo_completo"],
-                                student["usuario_lab"],
-                                student["usuario_gitlab"]])
+                                student.get("usuario_lab", ""),
+                                student.get("usuario_gitlab", "")])
 
 
 if __name__ == "__main__":
