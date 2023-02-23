@@ -34,21 +34,21 @@ def add_api (practices):
         practice['repo_api'] = practice['repo'].replace('/', '%2F')
 
 practices = {
-    "calculadora": {
+    "01-calculadora": {
         'repo': 'cursosweb/2022-2023/calculadora',
         'repo_api': 'cursosweb%2F2022-2023%2Fcalculadora'
     },
-    "redir": {
-        'repo': 'cursosweb/2022-2023/aplicacion-redirectora',
-        'repo_api': 'cursosweb%2F2022-2023%2Faplicacion-redirectora',
-    },
-    "descargaweb": {
+    "02-descargaweb": {
         'repo': 'cursosweb/2022-2023/descarga-documentos-web',
         'repo_api': 'cursosweb%2F2022-2023%2Fdescarga-documentos-web',
     },
-    "descargawebmodulos": {
+    "03-descargawebmodulos": {
         'repo': 'cursosweb/2022-2023/descarga-documentos-web-modulos',
         'repo_api': 'cursosweb%2F2022-2023%2Fddescarga-documentos-web-modulos',
+    },
+    "04-redir": {
+        'repo': 'cursosweb/2022-2023/aplicacion-redirectora',
+        'repo_api': 'cursosweb%2F2022-2023%2Faplicacion-redirectora',
     }
 }
 
