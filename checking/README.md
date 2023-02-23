@@ -6,7 +6,7 @@ Retrieve repositories from the ETSIT GitLab instance which are forked from a tem
 
 For each practice, there is a dictionary in `retrieve_repos.py`, `practices`, specifying the name of the template repository, and the name of the repository in the GitLab API.
 
-For each subject, there is a CSV file **exported from the Aulavirtual subject** with the role **Estudiante** filtered. 
+For each subject, there is a CSV file **exported from the Aulavirtual subject** with the role **Estudiante** filtered in. 
 
 ```
 "Nombre","Apellido(s)","Dirección de correo"

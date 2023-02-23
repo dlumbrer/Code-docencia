@@ -96,6 +96,7 @@ def clone(url, dir, token=''):
 
 def read_csv(file):
     students = {}
+    file_modified = False
     with open(file, 'r', newline='', encoding="utf-8") as cvsfile:
         rows = csv.DictReader(cvsfile)
         for row in rows:
@@ -128,7 +129,10 @@ def read_csv(file):
             else:
                 usuariolab = get_lab_username(students[usuariocorreo])
                 students[usuariocorreo]['usuario_lab'] = usuariolab
-            
+                file_modified = True
+    if file_modified:
+        print("Students file modified, writting new version")
+        export_csv_enriched(file, students)
     return students
 
 
@@ -301,4 +305,4 @@ if __name__ == "__main__":
         print(f"Retrieving practice {practice_id}")
         students = retrieve_practice(practice_id, cloning_dir, token)
         export_not_founds(students)
-        export_csv_enriched(args.students, students)
+#        export_csv_enriched(args.students, students)
