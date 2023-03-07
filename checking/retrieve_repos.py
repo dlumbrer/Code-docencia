@@ -108,7 +108,7 @@ def read_csv(file):
                 'usuario_correo': usuariocorreo,
                 'apellidos': row['Apellido(s)'],
             }
-            
+
             # Sometimes Nombre in the csv of aulavirtual is not well displayed
             if '\ufeffNombre' in row:
                 students[usuariocorreo]['nombre'] = row['\ufeffNombre']
@@ -120,9 +120,9 @@ def read_csv(file):
                 students[usuariocorreo]['nombre_apellidos'] = "{} {}".format(row['Nombre'], row['Apellido(s)']).lower()
                 students[usuariocorreo]['nombre_apellidos_formatted'] = remove_tildes(
                     students[usuariocorreo]['nombre_apellidos'])
-                
-            
-            
+
+
+
             # Sometimes the gitlab username is the lab username, so let's retrieve the laboratory usernames
             if 'Usuario Lab' in row:
                 students[usuariocorreo]['usuario_lab'] = row["Usuario Lab"]
@@ -130,6 +130,11 @@ def read_csv(file):
                 usuariolab = get_lab_username(students[usuariocorreo])
                 students[usuariocorreo]['usuario_lab'] = usuariolab
                 file_modified = True
+
+            if 'Usuario Gitlab' in row and row['Usuario Gitlab']:
+                students[usuariocorreo]['usuario_gitlab'] = row["Usuario Gitlab"]
+                students[usuariocorreo]['foundingitlab'] = True
+
     if file_modified:
         print("Students file modified, writting new version")
         export_csv_enriched(file, students)
@@ -144,7 +149,7 @@ def get_lab_username(student):
         if alumno_name in student['nombre_apellidos_formatted'].replace(" ", ""):
             # Return the lab username
             return entry.split("\n")[0].split("\t\t\tName: ")[0].split("Login: ")[-1].strip()
-        
+
     return ""
 
 
@@ -216,6 +221,7 @@ def retrieve_practice(practice_id, cloning_dir, token):
     #    print(forks)
 
     students = read_csv(args.students)
+    file_modified = False
 
     for fork in forks:
         # Each fork is a repo to consider
@@ -231,15 +237,20 @@ def retrieve_practice(practice_id, cloning_dir, token):
                 student_data['foundingitlab'] = False
                 if 'usuario_gitlab' not in student_data:
                     student_data['usuario_gitlab'] = ""
+
             if student_data['usuario_correo'] == fork_data['path']:
                 student_data['foundingitlab'] = True
-                student_data['usuario_gitlab'] = fork_data['path']
+                if 'usuario_gitlab' not in student_data or student_data['usuario_gitlab'] != fork_data['path']:
+                    student_data['usuario_gitlab'] = fork_data['path']
+                    file_modified = True
             elif student_data['usuario_lab'] == fork_data['path']:
                 student_data['foundingitlab'] = True
-                student_data['usuario_gitlab'] = fork_data['path']
+                if 'usuario_gitlab' not in student_data or student_data['usuario_gitlab'] != fork_data['path']:
+                    student_data['usuario_gitlab'] = fork_data['path']
+                    file_modified = True
             else:
                 continue
-            
+
             # If I found the match between gitlab username and student, clone the repo
             if student_data['foundingitlab']:
                 # We're only interested in repos in the list of students
@@ -258,6 +269,10 @@ def retrieve_practice(practice_id, cloning_dir, token):
         #           solved_dir=practice['solved_dir'],
         #           silent=args.silent)
     print(f"Total forks: {len(forks)}, repos found: {repos_found}, students in the csv: {len(students)}")
+
+    if file_modified:
+        print("Students file modified, writting new version")
+        export_csv_enriched(args.students, students)
     return students
 
 
