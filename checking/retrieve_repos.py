@@ -49,6 +49,20 @@ practices = {
     "04-redir": {
         'repo': 'cursosweb/2022-2023/aplicacion-redirectora',
         'repo_api': 'cursosweb%2F2022-2023%2Faplicacion-redirectora',
+    },
+    # Solo para SAT/SARO
+    "05-contentapp": {
+        'repo': 'cursosweb/2022-2023/contentapp',
+        'repo_api': 'cursosweb%2F2022-2023%2Fcontentapp',
+    },
+    # Solo para ST
+    "05-contentpostapp": {
+        'repo': 'cursosweb/2022-2023/contentpostapp',
+        'repo_api': 'cursosweb%2F2022-2023%2Fcontentpostapp',
+    },
+    "minip1": {
+        'repo': 'cursosweb/2022-2023/mini-1-acortadora',
+        'repo_api': 'cursosweb%2F2022-2023%2Fmini-1-acortadora',
     }
 }
 
