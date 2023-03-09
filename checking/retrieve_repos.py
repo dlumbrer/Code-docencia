@@ -55,8 +55,7 @@ practices = {
         'repo': 'cursosweb/2022-2023/contentapp',
         'repo_api': 'cursosweb%2F2022-2023%2Fcontentapp',
     },
-    # Solo para ST
-    "05-contentpostapp": {
+    "06-contentpostapp": {
         'repo': 'cursosweb/2022-2023/contentpostapp',
         'repo_api': 'cursosweb%2F2022-2023%2Fcontentpostapp',
     },
