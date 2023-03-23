@@ -59,9 +59,17 @@ practices = {
         'repo': 'cursosweb/2022-2023/contentpostapp',
         'repo_api': 'cursosweb%2F2022-2023%2Fcontentpostapp',
     },
+    "07-cms-put": {
+        'repo': 'cursosweb/2022-2023/django-cms-put',
+        'repo_api': 'cursosweb%2F2022-2023%django-cms-put',
+    },
     "minip1": {
         'repo': 'cursosweb/2022-2023/mini-1-acortadora',
         'repo_api': 'cursosweb%2F2022-2023%2Fmini-1-acortadora',
+    },
+    "minip2": {
+        'repo': 'cursosweb/2022-2023/mini-2-acortadora',
+        'repo_api': 'cursosweb%2F2022-2023%2Fmini-2-acortadora',
     }
 }
 
