@@ -35,50 +35,50 @@ def add_api (practices):
 
 practices = {
     "01-calculadora": {
-        'repo': 'cursosweb/2022-2023/calculadora',
-        'repo_api': 'cursosweb%2F2022-2023%2Fcalculadora'
+        'repo': 'cursosweb/2023-2024/calculadora',
+        'repo_api': 'cursosweb%2F2023-2024%2Fcalculadora'
     },
-    "02-descargaweb": {
-        'repo': 'cursosweb/2022-2023/descarga-documentos-web',
-        'repo_api': 'cursosweb%2F2022-2023%2Fdescarga-documentos-web',
-    },
-    "03-descargawebmodulos": {
-        'repo': 'cursosweb/2022-2023/descarga-documentos-web-modulos',
-        'repo_api': 'cursosweb%2F2022-2023%2Fddescarga-documentos-web-modulos',
-    },
-    "04-redir": {
-        'repo': 'cursosweb/2022-2023/aplicacion-redirectora',
-        'repo_api': 'cursosweb%2F2022-2023%2Faplicacion-redirectora',
-    },
-    # Solo para SAT/SARO
-    "05-contentapp": {
-        'repo': 'cursosweb/2022-2023/contentapp',
-        'repo_api': 'cursosweb%2F2022-2023%2Fcontentapp',
-    },
-    "06-contentpostapp": {
-        'repo': 'cursosweb/2022-2023/contentpostapp',
-        'repo_api': 'cursosweb%2F2022-2023%2Fcontentpostapp',
-    },
-    "07-cms-put": {
-        'repo': 'cursosweb/2022-2023/django-cms-put',
-        'repo_api': 'cursosweb%2F2022-2023%2Fdjango-cms-put',
-    },
-    "teoria_youtube": {
-        'repo': 'cursosweb/2022-2023/xml-youtube-descarga',
-        'repo_api': 'cursosweb%2F2022-2023%2Fxml-youtube-descarga',
-    },
-    "teoria_djangoyoutube": {
-        'repo': 'cursosweb/2022-2023/django-youtube',
-        'repo_api': 'cursosweb%2F2022-2023%2Fdjango-youtube',
-    },
-    "minip1": {
-        'repo': 'cursosweb/2022-2023/mini-1-acortadora',
-        'repo_api': 'cursosweb%2F2022-2023%2Fmini-1-acortadora',
-    },
-    "minip2": {
-        'repo': 'cursosweb/2022-2023/mini-2-acortadora',
-        'repo_api': 'cursosweb%2F2022-2023%2Fmini-2-acortadora',
+    # "02-descargaweb": {
+    #     'repo': 'cursosweb/2022-2023/descarga-documentos-web',
+    #     'repo_api': 'cursosweb%2F2022-2023%2Fdescarga-documentos-web',
+    # },
+    "02-descargawebmodulos": {
+        'repo': 'cursosweb/2023-2024/descarga-documentos-web-con-modulos',
+        'repo_api': 'cursosweb%2F2023-2024%2Fddescarga-documentos-web-con-modulos',
     }
+    # "04-redir": {
+    #     'repo': 'cursosweb/2022-2023/aplicacion-redirectora',
+    #     'repo_api': 'cursosweb%2F2022-2023%2Faplicacion-redirectora',
+    # },
+    # # Solo para SAT/SARO
+    # "05-contentapp": {
+    #     'repo': 'cursosweb/2022-2023/contentapp',
+    #     'repo_api': 'cursosweb%2F2022-2023%2Fcontentapp',
+    # },
+    # "06-contentpostapp": {
+    #     'repo': 'cursosweb/2022-2023/contentpostapp',
+    #     'repo_api': 'cursosweb%2F2022-2023%2Fcontentpostapp',
+    # },
+    # "07-cms-put": {
+    #     'repo': 'cursosweb/2022-2023/django-cms-put',
+    #     'repo_api': 'cursosweb%2F2022-2023%2Fdjango-cms-put',
+    # },
+    # "teoria_youtube": {
+    #     'repo': 'cursosweb/2022-2023/xml-youtube-descarga',
+    #     'repo_api': 'cursosweb%2F2022-2023%2Fxml-youtube-descarga',
+    # },
+    # "teoria_djangoyoutube": {
+    #     'repo': 'cursosweb/2022-2023/django-youtube',
+    #     'repo_api': 'cursosweb%2F2022-2023%2Fdjango-youtube',
+    # },
+    # "minip1": {
+    #     'repo': 'cursosweb/2022-2023/mini-1-acortadora',
+    #     'repo_api': 'cursosweb%2F2022-2023%2Fmini-1-acortadora',
+    # },
+    # "minip2": {
+    #     'repo': 'cursosweb/2022-2023/mini-2-acortadora',
+    #     'repo_api': 'cursosweb%2F2022-2023%2Fmini-2-acortadora',
+    # }
 }
 
 add_api(practices)
